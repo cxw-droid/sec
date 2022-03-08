@@ -9,6 +9,11 @@ def pickle_to_d(f_name):
     return d
 
 def stat_num(g_dict, g_sub_label=False):
+    """
+    output the number of graphs of different labels
+    @param g_dict:
+    @param g_sub_label:
+    """
     d = {}
     for k, v in g_dict.items():
         label = v['graph_sub_label'] if g_sub_label else v['label']
@@ -17,6 +22,13 @@ def stat_num(g_dict, g_sub_label=False):
         print(f'{v} graphs of label {k}')
 
 def sub_label(f_name, node_label, node_prop):
+    """
+    get specific sub node label for each node
+    @param f_name: the graph.json file
+    @param node_label: a list of the general node labels
+    @param node_prop: a list of node properties
+    @return:
+    """
     sub_labels = []
     for idx, n_label in enumerate(node_label):
         if n_label == 'ProcessNode':
@@ -47,6 +59,12 @@ def sub_label(f_name, node_label, node_prop):
     return sub_labels
 
 def k_fold(dataset, folds):
+    """
+    to generate k fold dataset
+    @param dataset:
+    @param folds: the number k of folders
+    @return:
+    """
     skf = StratifiedKFold(folds, shuffle=True, random_state=12345)
 
     test_indices, train_indices = [], []

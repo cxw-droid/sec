@@ -102,6 +102,16 @@ def _test(device=device, model=None, loader=None, verbose=False):
     return total_correct / len(loader.dataset), -1, -1
 
 def main(folds=10, epochs=101, verbose=False, dataset=None, batch_size=None, dim=None, num_layers=None):
+    """
+    
+    @param folds: k folder training and testing
+    @param epochs: number of epochs
+    @param verbose: if output more details
+    @param dataset: the TU dataset name
+    @param batch_size:
+    @param dim: hidden dimensions of the model
+    @param num_layers: number of layers of the model
+    """
     print(f'folders {folds}, epochs {epochs}, batch size {batch_size}, dim {dim}, num_layers {num_layers}')
     dataset = TUDataset(path, name=dataset)
     print('dataset:', dataset, 'dataset[0]:', dataset[0], 'dataset[-1]:', dataset[-1])

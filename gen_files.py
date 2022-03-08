@@ -9,9 +9,17 @@ from tqdm import tqdm
 from utils import sub_label, pickle_to_d, stat_num
 
 def find_files_json(dir, f_name=None, sampling=None, prefix=None):
+    """
+    find all the graph.json files and return all their paths
+    @param dir: the fold containg all the graph.json files
+    @param f_name: the name of graph json file, usually 'graph.json'
+    @param sampling:
+    @param prefix:
+    @return:
+    """
     if not sampling:
         return glob.glob(dir + '/**/' + f_name, recursive=True)
-    else:
+    else:  # sampling may not work for different folder structures
         num = int(prefix.split('_')[-1])
         f_benign = []
         dir_malicious = os.path.join(dir, 'malicious')
@@ -39,6 +47,12 @@ def find_files_json(dir, f_name=None, sampling=None, prefix=None):
         return  f_malicous + f_benign
 
 def one_graph_json(f=None, graph_sub_label='_none'):
+    """
+    process one graph.json file
+    @param f: the path of graph.json file
+    @param graph_sub_label:
+    @return:
+    """
     with open(f, 'r') as json_file:
         data = json.load(json_file)
     node_id = []
@@ -82,7 +96,18 @@ def sample_dict(d, num):
     keys = random.sample(d.keys(), num)
     return {k:d[k] for k in keys}
 
-def all_graphs_json(folder='../data/SEC', f_name='merged.json', sampling=-1, prefix=None, statistics=True, g_sub_label=False, pickle_f=None, ignore_none=True):
+def all_graphs_json(folder='../data/SEC', f_name='merged.json', sampling=-1, prefix=None, g_sub_label=False, pickle_f=None, ignore_none=True):
+    """
+    process all the graph.json files
+    @param folder:
+    @param f_name:
+    @param sampling:
+    @param prefix:
+    @param g_sub_label:
+    @param pickle_f:
+    @param ignore_none:
+    @return:
+    """
     graphs = {}
     f_list = find_files_json(folder, f_name=f_name, sampling=1 if sampling==1 else None, prefix=prefix)
     print(f'Proecessed {len(f_list)} files')
@@ -104,6 +129,7 @@ def all_graphs_json(folder='../data/SEC', f_name='merged.json', sampling=-1, pre
         graphs_benign = sample_dict(graphs_benign, int(len(graphs_benign) * percent))
         graphs_anomalous = sample_dict(graphs_anomalous, int(len(graphs_anomalous) * percent))
         graphs = {**graphs_benign, **graphs_anomalous}
+    print(f'd_graph: {d_graph}')
     stat_num(graphs, g_sub_label=g_sub_label)
     f_graph_json = f'graphs_{prefix}.json'
     with open(f_graph_json, 'w') as json_file:
@@ -111,6 +137,13 @@ def all_graphs_json(folder='../data/SEC', f_name='merged.json', sampling=-1, pre
     return f_graph_json
 
 def extract_data(f=None, prefix='SEC', n_sub_label=True, g_sub_label=False):
+    """
+    generate TU format dataset based on the generated json file
+    @param f: the generated json file which contains all the graphs
+    @param prefix:
+    @param n_sub_label:
+    @param g_sub_label:
+    """
     # load the graphs json file
     with open(f, 'r') as json_file:
         data = json.load(json_file)
@@ -185,6 +218,17 @@ def extract_data(f=None, prefix='SEC', n_sub_label=True, g_sub_label=False):
             shutil.copy(v, os.path.join(path, 'raw', prefix + '_' + v))
 
 def main(folder=None, f_name=None, prefix=None, sampling=None, n_sub_label=False, g_sub_label=False, pickle_f=None, ignore_none=True):
+    """
+
+    @param folder: the folder containing the graph json files extracted from the database
+    @param f_name: the json file name in the folder, usullay 'graph.json'
+    @param prefix: the name of the dataset to generate
+    @param sampling: use sampling or not
+    @param n_sub_label: use specific node label or not
+    @param g_sub_label: use specific graph label ('A', 'B' ...) or not
+    @param pickle_f: the pickle file that contains a dictionary of json graph file types
+    @param ignore_none: ignore non 'A', 'B', 'C' and 'D' label or not
+    """
     print(f'folder={folder}, f_name={f_name}, prefix={prefix}, sampling={sampling}, n_sub_label={n_sub_label}, g_sub_label={g_sub_label}, pickel_f={pickle_f}')
     f_graph_json = all_graphs_json(folder=folder, f_name=f_name, sampling=sampling, prefix=prefix, g_sub_label=g_sub_label, pickle_f=pickle_f, ignore_none=ignore_none)
     extract_data(f_graph_json, prefix=prefix, n_sub_label=n_sub_label, g_sub_label=g_sub_label)
